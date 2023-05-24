@@ -19,5 +19,5 @@ app.use('/api', experienciaRoutes);
 
 // Start the server
 app.listen(port, () => {
-    console.log(`> APLICACIÓN CORRIENDO EN EL PUERTO -----> ${port}`);
+    console.log(`***** APLICACIÓN FUNCIONANDO EN EL PUERTO ${port} *****`);
 });
