@@ -9,7 +9,7 @@ async function createExperiencia(req, res) {
 
     try {
         await pool.query(query, values);
-        console.log("> EXPERIENCIA > CREAR -----> EXPERIENCIA CREADA")
+        console.log(` > EXPERIENCIA > CREAR-----> EXPERIENCIA EN CREADA`)
         res.json("Experiencia creada con exito");
     } catch (error) {
         console.error('> EXPERIENCIA > CREAR -----> ERROR -----> ', error);
@@ -45,7 +45,7 @@ async function getExperienciaById(req, res) {
             console.log("> EXPERIENCIA > OBTENERxID -----> EXPERIENCIA NO ENCONTRADA -----> ERROR -----> ")
             return res.status(404).json({ error: 'Experiencia laboral no encontrada' });
         }
-        console.log("> EXPERIENCIA > OBTENERxID -----> EXPERIENCIA OBTENIDA")
+        console.log(`> EXPERIENCIA > OBTENERxID -----> EXPERIENCIA OBTENIDA`)
         res.json({ experiencia: rows[0] });
     } catch (error) {
         console.error('> EXPERIENCIA > OBTENER -----> ERROR -----> ', error);
