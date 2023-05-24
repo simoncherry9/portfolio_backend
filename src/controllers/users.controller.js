@@ -19,7 +19,7 @@ class UsersController {
                 role: userRole,
             });
 
-            const token = jwt.sign({ role }, process.env.SECRET_KEY);
+            const token = jwt.sign({ role: user.role }, process.env.SECRET_KEY, { algorithm: 'HS256' });
 
             const transporter = nodemailer.createTransport({
                 host: 'smtp.gmail.com',
@@ -71,7 +71,7 @@ class UsersController {
                 return res.status(401).json({ error: 'Contrasñea incorrecta' });
             }
 
-            const token = jwt.sign({ role: user.role }, process.env.SECRET_KEY);
+            const token = jwt.sign({ role: user.role }, process.env.SECRET_KEY, { algorithm: 'HS256', expiresIn: '1h' });
 
             res.json({ token });
             console.log(`> USUARIO > LOGIN -----> CORRECTO -----> USUARIO: ${email}`)
