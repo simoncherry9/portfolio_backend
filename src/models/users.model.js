@@ -13,6 +13,19 @@ class User {
             throw error;
         }
     }
+
+    static async findOneByEmail(email) {
+        const query = 'SELECT * FROM users WHERE email = ?';
+        const values = [email];
+
+        try {
+            const [rows] = await pool.query(query, values);
+            return rows[0];
+        } catch (error) {
+            console.error('Error al buscar el usuario por email:', error);
+            throw error;
+        }
+    }
 }
 
 module.exports = User;

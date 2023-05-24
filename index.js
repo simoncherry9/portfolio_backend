@@ -1,5 +1,8 @@
 const express = require('express');
 const cors = require('cors');
+
+const usersRoutes = require('./src/routes/users.routes');
+
 require('dotenv').config();
 
 const app = express();
@@ -9,7 +12,7 @@ app.use(express.json());
 app.use(cors());
 
 // Routes
-const usersRoutes = require('./src/routes/users.routes');
+
 app.use('/api', usersRoutes);
 
 // Start the server
