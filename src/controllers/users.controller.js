@@ -1,11 +1,13 @@
 const User = require('../models/users.model');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
 require('dotenv').config();
 
 class UsersController {
     static async createUser(req, res) {
         const { email, username, password, role } = req.body;
+        const userRole = role || 'visitante';
 
         try {
             const hashedPassword = await bcrypt.hash(password, 10);
@@ -14,7 +16,7 @@ class UsersController {
                 email,
                 username,
                 password: hashedPassword,
-                role,
+                role: userRole,
             });
 
             const token = jwt.sign({ role }, process.env.SECRET_KEY);
