@@ -5,6 +5,7 @@ const usersRoutes = require('./src/routes/users.routes');
 const experienciaRoutes = require('./src/routes/experiencias.routes');
 const aptitudesRoutes = require('./src/routes/aptitudes.routes');
 const educacionRoutes = require('./src/routes/educacion.routes');
+const comentariosRoutes = require('./src/routes/comentarios.routes');
 
 require('dotenv').config();
 
@@ -20,6 +21,7 @@ app.use('/api', usersRoutes);
 app.use('/api', experienciaRoutes);
 app.use('/api', aptitudesRoutes);
 app.use('/api', educacionRoutes);
+app.use('/api', comentariosRoutes);
 
 // Start the server
 app.listen(port, () => {

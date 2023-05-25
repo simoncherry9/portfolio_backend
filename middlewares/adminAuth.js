@@ -26,4 +26,25 @@ function verifyAdminToken(req, res, next) {
     });
 }
 
-module.exports = { verifyAdminToken };
+function loginUser(req, res, next) {
+    const token = req.headers.authorization;
+
+    if (!token) {
+        console.log("> ERROR -----> NO SE DETECTO TOKEN ----->", err);
+        return res.status(401).json({ error: 'Token de autenticación no proporcionado' });
+    }
+
+    const tokenWithoutScheme = token.split(' ')[1];
+
+    jwt.verify(tokenWithoutScheme, process.env.SECRET_KEY, { algorithms: ['HS256'] }, (err, decoded) => {
+        if (err) {
+            console.log("> ERROR -----> TOKEN DE AUTENTICACION IVALIDO ----->", err);
+            return res.status(401).json({ error: 'Token de autenticación inválido' });
+        }
+
+        req.user = decoded;
+        next();
+    });
+}
+
+module.exports = { verifyAdminToken, loginUser };
