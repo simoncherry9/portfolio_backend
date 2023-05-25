@@ -9,7 +9,7 @@ async function createExperiencia(req, res) {
 
     try {
         await pool.query(query, values);
-        console.log(` > EXPERIENCIA > CREAR-----> EXPERIENCIA EN CREADA`)
+        console.log(` > EXPERIENCIA > CREAR-----> EXPERIENCIA CREADA`)
         res.json("Experiencia creada con exito");
     } catch (error) {
         console.error('> EXPERIENCIA > CREAR -----> ERROR -----> ', error);
