@@ -3,6 +3,7 @@ const cors = require('cors');
 
 const usersRoutes = require('./src/routes/users.routes');
 const experienciaRoutes = require('./src/routes/experiencias.routes');
+const aptitudesRoutes = require('./src/routes/aptitudes.routes');
 
 require('dotenv').config();
 
@@ -16,6 +17,7 @@ app.use(cors());
 
 app.use('/api', usersRoutes);
 app.use('/api', experienciaRoutes);
+app.use('/api', aptitudesRoutes);
 
 // Start the server
 app.listen(port, () => {
