@@ -7,6 +7,7 @@ const aptitudesRoutes = require('./src/routes/aptitudes.routes');
 const educacionRoutes = require('./src/routes/educacion.routes');
 const comentariosRoutes = require('./src/routes/comentarios.routes');
 const formulariosRoutes = require('./src/routes/formularios.routes');
+const proyectosRoutes = require('./src/routes/proyectos.routes');
 
 require('dotenv').config();
 
@@ -24,6 +25,7 @@ app.use('/api', aptitudesRoutes);
 app.use('/api', educacionRoutes);
 app.use('/api', comentariosRoutes);
 app.use('/api', formulariosRoutes);
+app.use('/api', proyectosRoutes);
 
 // Start the server
 app.listen(port, () => {
