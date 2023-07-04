@@ -212,6 +212,34 @@ async function deleteComentario(req, res) {
         console.error('> COMENTARIO > ELIMINAR -----> ERROR -----> ', error);
         res.status(500).json({ error: 'Error interno al eliminar el comentario' });
     }
+
+}
+async function getComentariosByUsername(req, res) {
+    const { username } = req.params;
+
+    const query = 'SELECT * FROM comentarios WHERE username = ?';
+    const values = [username];
+
+    try {
+        const [rows] = await pool.query(query, values);
+
+        if (rows.length === 0) {
+            console.log('> COMENTARIOS > OBTENERxUSERNAME -----> COMENTARIOS NO ENCONTRADOS');
+            return res.status(404).json({ error: 'No se encontraron comentarios para el usuario especificado' });
+        }
+
+        console.log('> COMENTARIOS > OBTENERxUSERNAME -----> COMENTARIOS OBTENIDOS');
+        const comentarios = rows.map(row => ({
+            id: row.id,
+            titulo: row.titulo,
+            comentario: row.comentario,
+            username: row.username
+        }));
+        res.json(comentarios);
+    } catch (error) {
+        console.error('> COMENTARIOS > OBTENERxUSERNAME -----> ERROR -----> ', error);
+        res.status(500).json({ error: 'Error interno al obtener los comentarios' });
+    }
 }
 
 module.exports = {
@@ -219,5 +247,6 @@ module.exports = {
     getComentarios,
     getComentarioById,
     editComentario,
-    deleteComentario
+    deleteComentario,
+    getComentariosByUsername,
 };
