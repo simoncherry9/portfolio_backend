@@ -1,9 +1,9 @@
 const pool = require('../../DB');
 
 class Comentarios {
-    static async create({ comentario, titulo }) {
-        const query = 'INSERT INTO comentarios ( comentario, titulo) VALUES (?, ?)';
-        const values = [comentario, titulo];
+    static async create({ comentario, titulo, username }) {
+        const query = 'INSERT INTO comentarios ( comentario, titulo, username) VALUES (?, ?, ?)';
+        const values = [comentario, titulo, username];
 
         try {
             const [result] = await pool.query(query, values);

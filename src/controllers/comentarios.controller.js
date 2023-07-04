@@ -1,17 +1,47 @@
 const pool = require('../../DB');
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
+
+const claveSecreta = process.env.SECRET_KEY;
 
 // Método para crear un comentario
 async function createComentario(req, res) {
     const { comentario, titulo } = req.body;
 
-    const query = 'INSERT INTO comentarios (comentario, titulo) VALUES (?, ?)';
-    const values = [comentario, titulo];
+    // Obtener el token del encabezado de la solicitud
+    const token = req.headers.authorization;
 
     try {
+        // Verificar si el token existe y tiene el formato correcto
+        if (!token || !token.startsWith('Bearer ')) {
+            console.log('> ERROR -----> NO SE DETECTÓ TOKEN');
+            return res.status(401).json({ error: 'Token de autenticación no proporcionado' });
+        }
+
+        // Separar el token en esquema y token real
+        const [scheme, tokenWithoutScheme] = token.split(' ');
+
+        // Verificar si el esquema es "Bearer"
+        if (scheme !== 'Bearer') {
+            console.log('> ERROR -----> ESQUEMA DE TOKEN INVÁLIDO');
+            return res.status(401).json({ error: 'Esquema de token inválido' });
+        }
+
+        // Decodificar el token y extraer el username
+        const decodedToken = jwt.verify(tokenWithoutScheme, claveSecreta); // Utiliza la clave secreta desde el entorno
+        const username = decodedToken.username;
+
+        const query = 'INSERT INTO comentarios (comentario, titulo, username) VALUES (?, ?, ?)';
+        const values = [comentario, titulo, username];
+
         await pool.query(query, values);
-        console.log(` > COMENTARIOS > CREAR-----> COMENTARIO CREADO`)
-        res.json("Comentario creado con exito");
+        console.log('> COMENTARIOS > CREAR -----> COMENTARIO CREADO');
+        res.json('Comentario creado con éxito');
     } catch (error) {
+        if (error instanceof jwt.JsonWebTokenError) {
+            console.log('> COMENTARIO > CREAR -----> ERROR -----> Token inválido', decodedToken);
+            return res.status(401).json({ error: 'Token inválido' });
+        }
         console.error('> COMENTARIO > CREAR -----> ERROR -----> ', error);
         res.status(500).json({ error: 'Error interno al crear el comentario' });
     }
@@ -23,8 +53,14 @@ async function getComentarios(req, res) {
 
     try {
         const [rows] = await pool.query(query);
-        console.log("> COMENTARIOS > OBTENER -----> COMENTARIOS OBTENIDOS")
-        res.json({ comentarios: rows });
+        console.log("> COMENTARIOS > OBTENER -----> COMENTARIOS OBTENIDOS");
+        const comentarios = rows.map(row => ({
+            id: row.id,
+            titulo: row.titulo,
+            comentario: row.comentario,
+            username: row.username
+        }));
+        res.json(comentarios);
     } catch (error) {
         console.error('> COMENTARIOS > OBTENER -----> ERROR -----> ', error);
         res.status(500).json({ error: 'Error interno al obtener los comentarios' });
@@ -58,19 +94,59 @@ async function editComentario(req, res) {
     const { id } = req.params;
     const { comentario, titulo } = req.body;
 
-    const query = 'UPDATE comentarios SET comentario = ?, titulo = ? WHERE id = ?';
-    const values = [comentario, titulo, id];
+    const querySelect = 'SELECT username FROM comentarios WHERE id = ?';
+    const queryUpdate = 'UPDATE comentarios SET comentario = ?, titulo = ? WHERE id = ?';
+    const valuesSelect = [id];
+    const valuesUpdate = [comentario, titulo, id];
+
+    // Obtener el token del encabezado de la solicitud
+    const token = req.headers.authorization;
 
     try {
-        const [result] = await pool.query(query, values);
+        // Verificar si el token existe y tiene el formato correcto
+        if (!token || !token.startsWith('Bearer ')) {
+            console.log('> ERROR -----> NO SE DETECTÓ TOKEN');
+            return res.status(401).json({ error: 'Token de autenticación no proporcionado' });
+        }
+
+        // Separar el token en esquema y token real
+        const [scheme, tokenWithoutScheme] = token.split(' ');
+
+        // Verificar si el esquema es "Bearer"
+        if (scheme !== 'Bearer') {
+            console.log('> ERROR -----> ESQUEMA DE TOKEN INVÁLIDO');
+            return res.status(401).json({ error: 'Esquema de token inválido' });
+        }
+
+        // Decodificar el token y extraer el username
+        const decodedToken = jwt.verify(tokenWithoutScheme, claveSecreta); // Utiliza la clave secreta desde el entorno
+        const username = decodedToken.username;
+
+        // Obtener el username del comentario que se va a editar
+        const [rows] = await pool.query(querySelect, valuesSelect);
+        const commentUsername = rows[0].username;
+
+        // Verificar si el usuario que realiza la edición es el mismo que creó el comentario
+        if (username !== commentUsername) {
+            console.log('> COMENTARIO > EDITAR -----> ERROR -----> Usuario no autorizado');
+            return res.status(403).json({ error: 'No estás autorizado para editar este comentario' });
+        }
+
+        // Actualizar el comentario en la base de datos
+        const [result] = await pool.query(queryUpdate, valuesUpdate);
 
         if (result.affectedRows === 0) {
-            console.log("> COMENTARIOS > EDITARxID -----> COMENTARIO NO ENCONTRADO -----> ERROR -----> ", error)
+            console.log("> COMENTARIOS > EDITARxID -----> COMENTARIO NO ENCONTRADO -----> ERROR");
             return res.status(404).json({ error: 'Comentario no encontrado' });
         }
-        console.log("> COMENTARIO > EDITAR -----> COMENTARIO EDITADO")
-        res.json("Comentario editado con exito");
+
+        console.log("> COMENTARIO > EDITAR -----> COMENTARIO EDITADO");
+        res.json("Comentario editado con éxito");
     } catch (error) {
+        if (error instanceof jwt.JsonWebTokenError) {
+            console.log('> COMENTARIO > EDITAR -----> ERROR -----> Token inválido', token);
+            return res.status(401).json({ error: 'Token inválido' });
+        }
         console.error('> COMENTARIO > EDITAR -----> ERROR -----> ', error);
         res.status(500).json({ error: 'Error interno al editar el comentario' });
     }
@@ -80,20 +156,60 @@ async function editComentario(req, res) {
 async function deleteComentario(req, res) {
     const { id } = req.params;
 
-    const query = 'DELETE FROM comentarios WHERE id = ?';
-    const values = [id];
+    const querySelect = 'SELECT username FROM comentarios WHERE id = ?';
+    const queryDelete = 'DELETE FROM comentarios WHERE id = ?';
+    const valuesSelect = [id];
+    const valuesDelete = [id];
+
+    // Obtener el token del encabezado de la solicitud
+    const token = req.headers.authorization;
 
     try {
-        const [result] = await pool.query(query, values);
+        // Verificar si el token existe y tiene el formato correcto
+        if (!token || !token.startsWith('Bearer ')) {
+            console.log('> ERROR -----> NO SE DETECTÓ TOKEN');
+            return res.status(401).json({ error: 'Token de autenticación no proporcionado' });
+        }
+
+        // Separar el token en esquema y token real
+        const [scheme, tokenWithoutScheme] = token.split(' ');
+
+        // Verificar si el esquema es "Bearer"
+        if (scheme !== 'Bearer') {
+            console.log('> ERROR -----> ESQUEMA DE TOKEN INVÁLIDO');
+            return res.status(401).json({ error: 'Esquema de token inválido' });
+        }
+
+        // Decodificar el token y extraer el username
+        const decodedToken = jwt.verify(tokenWithoutScheme, claveSecreta); // Utiliza la clave secreta desde el entorno
+        const username = decodedToken.username;
+
+        // Obtener el username del comentario que se va a eliminar
+        const [rows] = await pool.query(querySelect, valuesSelect);
+        const commentUsername = rows[0].username;
+
+        // Verificar si el usuario que realiza la eliminación es el mismo que creó el comentario
+        if (username !== commentUsername) {
+            console.log('> COMENTARIO > ELIMINAR -----> ERROR -----> Usuario no autorizado');
+            return res.status(403).json({ error: 'No estás autorizado para eliminar este comentario' });
+        }
+
+        // Eliminar el comentario de la base de datos
+        const [result] = await pool.query(queryDelete, valuesDelete);
 
         if (result.affectedRows === 0) {
-            console.log("> COMENTARIO > ELIMINAR -----> COMENTARIO NO ENCONTRADO -----> ERROR -----> ", error)
+            console.log("> COMENTARIO > ELIMINAR -----> COMENTARIO NO ENCONTRADO -----> ERROR");
             return res.status(404).json({ error: 'Comentario no encontrado' });
         }
-        console.log("> COMENTARIO > ELIMINAR -----> COMENTARIO ELIMINADO")
+
+        console.log("> COMENTARIO > ELIMINAR -----> COMENTARIO ELIMINADO");
         res.json("Comentario eliminado de manera exitosa");
     } catch (error) {
-        console.error('"> COMENTARIO > ELIMINAR -----> ERROR -----> ', error);
+        if (error instanceof jwt.JsonWebTokenError) {
+            console.log('> COMENTARIO > ELIMINAR -----> ERROR -----> Token inválido', token);
+            return res.status(401).json({ error: 'Token inválido' });
+        }
+        console.error('> COMENTARIO > ELIMINAR -----> ERROR -----> ', error);
         res.status(500).json({ error: 'Error interno al eliminar el comentario' });
     }
 }

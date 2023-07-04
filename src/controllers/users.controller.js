@@ -4,6 +4,8 @@ const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 
+const claveSecreta = process.env.SECRET_KEY;
+
 class UsersController {
     static async createUser(req, res) {
         const { email, username, password, role } = req.body;
@@ -19,7 +21,7 @@ class UsersController {
                 role: userRole,
             });
 
-            const token = jwt.sign({ role: User.role }, process.env.SECRET_KEY, { algorithm: 'HS256' });
+            const token = jwt.sign({ role: User.role, username: User.username }, claveSecreta, { algorithm: 'HS256' });
 
             const transporter = nodemailer.createTransport({
                 host: 'smtp.gmail.com',
@@ -85,7 +87,7 @@ class UsersController {
                 return res.status(401).json({ error: 'Contrasñea incorrecta' });
             }
 
-            const token = jwt.sign({ role: user.role }, process.env.SECRET_KEY, { algorithm: 'HS256', expiresIn: '1h' });
+            const token = jwt.sign({ role: user.role, username: user.username }, claveSecreta, { algorithm: 'HS256', expiresIn: '1h' });
 
             res.json({ token });
             console.log(`> USUARIO > LOGIN -----> CORRECTO -----> USUARIO: ${email}`)

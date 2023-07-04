@@ -9,8 +9,8 @@ router.get('/comentarios', ComentariosController.getComentarios);
 
 router.get('/comentarios/:id', ComentariosController.getComentarioById);
 
-router.put('/comentarios/:id', verifyAdminToken, ComentariosController.editComentario);
+router.put('/comentarios/:id', loginUser, ComentariosController.editComentario);
 
-router.delete('/comentarios/:id', verifyAdminToken, ComentariosController.deleteComentario);
+router.delete('/comentarios/:id', loginUser, ComentariosController.deleteComentario);
 
 module.exports = router;
