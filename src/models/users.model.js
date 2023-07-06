@@ -27,13 +27,38 @@ class User {
         }
     }
 
-    static async findOne(query) {
+    static async findOne(query, values) {
         const sql = 'SELECT * FROM users WHERE ' + query;
         try {
-            const [rows] = await pool.query(sql);
+            const [rows] = await pool.query(sql, values);
             return rows[0];
         } catch (error) {
             console.error('Error al buscar el usuario:', error);
+            throw error;
+        }
+    }
+
+    static async findAll() {
+        const query = 'SELECT * FROM users';
+
+        try {
+            const [rows] = await pool.query(query);
+            return rows;
+        } catch (error) {
+            console.error('Error al obtener todos los usuarios:', error);
+            throw error;
+        }
+    }
+
+    static async findById(id) {
+        const query = 'SELECT * FROM users WHERE id = ?';
+        const values = [id];
+
+        try {
+            const [rows] = await pool.query(query, values);
+            return rows[0];
+        } catch (error) {
+            console.error('Error al buscar el usuario por ID:', error);
             throw error;
         }
     }
