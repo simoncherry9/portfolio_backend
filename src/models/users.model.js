@@ -26,6 +26,17 @@ class User {
             throw error;
         }
     }
+
+    static async findOne(query) {
+        const sql = 'SELECT * FROM users WHERE ' + query;
+        try {
+            const [rows] = await pool.query(sql);
+            return rows[0];
+        } catch (error) {
+            console.error('Error al buscar el usuario:', error);
+            throw error;
+        }
+    }
 }
 
 module.exports = User;

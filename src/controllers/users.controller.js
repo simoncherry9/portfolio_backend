@@ -12,6 +12,16 @@ class UsersController {
         const userRole = role || 'visitante';
 
         try {
+
+            const existingUser = await User.findOne(
+                `email = '${email}' OR username = '${username}'`
+            );
+            if (existingUser) {
+                return res
+                    .status(409)
+                    .json({ error: 'El email o el username ya están en uso' });
+            }
+
             const hashedPassword = await bcrypt.hash(password, 10);
 
             const userId = await User.create({
