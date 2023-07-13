@@ -14,6 +14,18 @@ class User {
         }
     }
 
+    static async updatePassword(email, newPassword) {
+        const query = 'UPDATE users SET password = ? WHERE email = ?';
+        const values = [newPassword, email];
+
+        try {
+            await pool.query(query, values);
+        } catch (error) {
+            console.error('Error al actualizar la contraseña del usuario:', error);
+            throw error;
+        }
+    }
+
     static async findOneByEmail(email) {
         const query = 'SELECT * FROM users WHERE email = ?';
         const values = [email];
@@ -62,6 +74,31 @@ class User {
             throw error;
         }
     }
+
+    static async findOneByUsername(username) {
+        const query = 'SELECT * FROM users WHERE username = ?';
+        const values = [username];
+
+        try {
+            const [rows] = await pool.query(query, values);
+            return rows[0];
+        } catch (error) {
+            console.error('Error al buscar el usuario por username:', error);
+            throw error;
+        }
+    }
+
+    static async findOneAndUpdate(query, update) {
+        try {
+            const result = await pool.query('UPDATE users SET ? WHERE ?', [update, query]);
+            return result;
+        } catch (error) {
+            console.error('Error al actualizar el usuario:', error);
+            throw error;
+        }
+    }
+
+
 }
 
 module.exports = User;

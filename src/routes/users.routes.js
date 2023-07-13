@@ -8,6 +8,8 @@ router.post('/login', UsersController.loginUser);
 router.get('/users', UsersController.getAllUsers);
 router.get('/users/:username', UsersController.getUser); // Cambio en esta ruta
 router.put('/users/:username', loginUser, UsersController.editUser);
+router.post('/forgot-password', UsersController.forgotPassword);
+router.put('/reset-password/:token', UsersController.resetPassword);
 
 
 router.delete('/users/:username', UsersController.deleteUser); // Cambio en esta ruta
