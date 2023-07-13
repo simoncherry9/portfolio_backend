@@ -8,16 +8,10 @@ const pool = require('../../DB');
 const claveSecreta = process.env.SECRET_KEY;
 
 function generateTemporaryPassword() {
-    // Implementa la lógica para generar una contraseña temporal
-    // Puede ser una combinación aleatoria de letras, números y caracteres especiales
-    // Aquí hay un ejemplo simple:
     return Math.random().toString(36).slice(-8);
 }
 
 function sendPasswordResetEmail(email, temporaryPassword) {
-    // Implementa la lógica para enviar el correo electrónico con la contraseña temporal
-    // Puedes utilizar la biblioteca nodemailer para enviar correos electrónicos
-    // Aquí hay un ejemplo básico utilizando nodemailer:
 
     const transporter = nodemailer.createTransport({
         host: 'smtp.gmail.com',
