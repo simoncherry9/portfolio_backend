@@ -27,7 +27,18 @@ function sendPasswordResetEmail(email, temporaryPassword) {
         from: 'simoncherry9@gmail.com',
         to: email,
         subject: 'Restablecimiento de contraseña',
-        text: `Tu nueva contraseña temporal es: ${temporaryPassword}`,
+        html: `<h1>¡Hola!</h1>
+          <p>Nos comunicamos con vos para notificarte sobre el reestablecimiento de tu contraseña.</p>
+          <p>Si no fuiste tú, ignora este correo</p>
+          <p>De haber solicitado el cambio de contraseña, por favor, sigue los pasos a continuación</p>
+          <ul>
+            <li>Ingresa a la web <a>www.ejemplo.com</a></li>
+            <li>Deberás iniciar sesión con la siguiente contraseña temporal: ${temporaryPassword}</li>
+            <li>Una vez hayas ingresado al sitio, dirigete a la opción de editar y de allí podras cambiar tu contraseña</li>
+          </ul>
+          <p>Gracias por tu tiempo</p>
+          <p>Saludos,</p>
+          <p>Simón Cherry</p>`,
     };
 
     transporter.sendMail(mailOptions, (error, info) => {
