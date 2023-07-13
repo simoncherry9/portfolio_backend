@@ -45,7 +45,6 @@ function sendPasswordResetEmail(email, temporaryPassword) {
     });
 }
 
-
 class UsersController {
     static async createUser(req, res) {
         const { email, username, password, role } = req.body;
@@ -127,7 +126,6 @@ class UsersController {
                 .json({ error: 'ERROR INTERNO AL INTENTAR CREAR EL USUARIO' });
         }
     }
-
 
     static async loginUser(req, res) {
         const { email, password } = req.body;
@@ -237,8 +235,6 @@ class UsersController {
             res.status(500).json({ error: 'ERROR INTERNO AL EDITAR EL USUARIO' });
         }
     }
-
-
 
     static async getAllUsers(req, res) {
         try {
